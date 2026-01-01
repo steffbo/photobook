@@ -77,24 +77,25 @@ photobook/
 
 ### Phase 1: Project Setup & Infrastructure
 
-- [ ] **1.1** Create `docker-compose.yml` with PostgreSQL 17 and SeaweedFS containers
-- [ ] **1.2** Create `.env.example` with all required environment variables
-- [ ] **1.3** Create `openapi.yaml` with complete API specification:
+- [x] **1.1** Create `docker-compose.yml` with PostgreSQL 17 and SeaweedFS containers
+- [x] **1.2** Create `.env.example` with all required environment variables
+- [x] **1.3** Create `openapi.yaml` with complete API specification:
   - Authentication endpoints (login, refresh, logout)
   - User management (CRUD, admin only for create/delete)
   - Album management (CRUD, access control)
   - Photo management (upload, list, delete, move between albums)
   - Photo serving (thumbnails, originals with presigned URLs)
-- [ ] **1.4** Create backend Maven project structure with `pom.xml`:
-  - Spring Boot 4 parent
+- [x] **1.4** Create backend Maven project structure with `pom.xml`:
+  - Spring Boot 4.0.1 parent with Java 25
   - OpenAPI generator plugin (spring generator, interfaceOnly)
   - All dependencies (security, JPA, Flyway, S3, JWT, validation)
-- [ ] **1.5** Initialize frontend project with shadcn-vue:
-  - Run: `bunx --bun shadcn@latest create --preset "https://ui.shadcn.com/init?base=radix&style=vega&baseColor=neutral&theme=cyan&iconLibrary=lucide&font=inter&menuAccent=subtle&menuColor=default&radius=small&template=vite" --template vite`
-  - This creates Vue 3 + TypeScript + Vite + Tailwind CSS + shadcn-vue setup
-  - Add openapi-typescript-codegen for API client generation
-  - Add axios for HTTP requests
-  - Add @vueuse/core for composables (drag-and-drop, gestures, etc.)
+- [x] **1.5** Initialize frontend project with shadcn-vue:
+  - Created Vue 3 + TypeScript + Vite project manually
+  - Added openapi-typescript-codegen for API client generation
+  - Added axios for HTTP requests
+  - Added @vueuse/core for composables (drag-and-drop, gestures, etc.)
+  - Added radix-vue, class-variance-authority, clsx, tailwind-merge for shadcn-vue foundation
+  - Added Tailwind CSS 4, Lucide icons, Vue Router, Pinia
 
 ### Phase 2: Backend Core
 
