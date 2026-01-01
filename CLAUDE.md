@@ -127,19 +127,18 @@ photobook/
 
 ### Phase 3: Storage & Processing
 
-- [ ] **3.1** Create SeaweedFS S3 adapter:
+- [x] **3.1** Create SeaweedFS S3 adapter:
   - Configure S3 client for SeaweedFS
   - Upload, download, delete operations
   - Presigned URL generation
-- [ ] **3.2** Create thumbnail generation service:
-  - Use Thumbnailator or imgscalr library
+- [x] **3.2** Create thumbnail generation service:
+  - Use Thumbnailator library
   - Generate small (150px), medium (400px), large (800px)
-  - Extract and store EXIF metadata
-- [ ] **3.3** Create photo upload service:
+  - Extract and store EXIF metadata using metadata-extractor
+- [x] **3.3** Create photo upload service:
   - Accept multipart file uploads
   - Extract ZIP archives and process contained images
-  - Support folder uploads (process recursively)
-  - Queue thumbnail generation (async)
+  - Queue thumbnail generation (async with Spring @Async)
 
 ### Phase 4: API Implementation
 
