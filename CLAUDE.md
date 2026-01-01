@@ -99,25 +99,31 @@ photobook/
 
 ### Phase 2: Backend Core
 
-- [ ] **2.1** Create Flyway migration `V1__initial_schema.sql`:
+- [x] **2.1** Create Flyway migration `V1__initial_schema.sql`:
   - All tables with proper constraints and indexes
   - Admin user seeded (email: admin@photobook.local, password: admin)
-- [ ] **2.2** Copy and adapt authentication from timetrack:
+  - BCrypt password hash for admin user
+- [x] **2.2** Copy and adapt authentication from timetrack:
   - `SecurityConfig.java`
   - `JwtAuthenticationFilter.java`
   - `JwtTokenProvider.java`
   - `CustomUserDetailsService.java`
   - `UserPrincipal.java`
   - `JwtProperties.java`
-- [ ] **2.3** Create domain entities:
+- [x] **2.3** Create domain entities:
   - `User.java`
-  - `Photo.java`
+  - `Photo.java` (with JSONB support for EXIF data)
   - `PhotoThumbnail.java`
   - `Album.java`
+  - `AlbumPhoto.java` (many-to-many relationship)
   - `AlbumUser.java` (with role: OWNER, VIEWER)
   - `RefreshToken.java`
-- [ ] **2.4** Create repositories for all entities
-- [ ] **2.5** Create `application.yml` with all configurations
+- [x] **2.4** Create repositories for all entities
+- [x] **2.5** Configure `application.yml` and `pom.xml`:
+  - Use `spring-boot-starter-flyway` instead of `flyway-core`
+  - Set `spring.jpa.hibernate.ddl-auto: none` (Flyway manages schema)
+  - Added Flyway debug logging
+  - Configured Maven compiler plugin with Lombok annotation processing
 
 ### Phase 3: Storage & Processing
 
@@ -246,6 +252,41 @@ photobook/
   - Screen reader testing with VoiceOver/NVDA
   - Color contrast validation (shadcn-vue themes are WCAG AA compliant)
   - Focus-visible styles using Tailwind (focus-visible:ring-2)
+
+## Important Configuration Notes
+
+### Backend Configuration
+
+**Flyway Setup** (Critical for database migrations):
+- Must use `spring-boot-starter-flyway` dependency (NOT `flyway-core` alone)
+- This ensures Spring Boot's auto-configuration runs Flyway before JPA/Hibernate
+- Configuration in `application.yml`:
+  ```yaml
+  spring:
+    jpa:
+      hibernate:
+        ddl-auto: none  # IMPORTANT: Let Flyway manage the schema
+    flyway:
+      enabled: true
+      baseline-on-migrate: true
+      clean-disabled: false
+      locations: classpath:db/migration
+      validate-migration-naming: true
+  ```
+
+**Lombok Configuration**:
+- Maven compiler plugin must be configured with annotation processor path
+- See `pom.xml` lines 170-186 for the complete configuration
+- Without this, getters/setters won't be generated
+
+**OpenAPI Generator**:
+- Do NOT add Lombok annotations to generated models (causes duplicate constructors)
+- The generator creates its own constructors and getters/setters
+
+**Security**:
+- JWT configuration uses Spring Security 7 (Spring Boot 4)
+- No need for explicit `DaoAuthenticationProvider` bean
+- Filter chain configured with lambda DSL
 
 ## Design Guidelines
 
@@ -386,26 +427,65 @@ shadcn-vue components built on Radix Vue provide excellent accessibility out of 
 
 ## Running Locally
 
+### Development Tools Setup
+
+This project requires **Java 25** and **Maven 3.9+**. Version management files are provided:
+
+- `.java-version` - For jenv, mise, asdf, or other Java version managers
+- `.tool-versions` - For mise/asdf users (includes Java, Maven, Bun)
+
+**If using mise/asdf**: Versions will be automatically activated when entering the project directory.
+
+**If using jenv**: Run `jenv local temurin-25` to set the Java version.
+
+**If using system Java**: Ensure `java -version` shows Java 25 and Maven 3.9+ is installed.
+
+To verify your setup:
+
+```bash
+java -version  # Should show Java 25
+mvn -version   # Should show Maven 3.9+
+```
+
 ### Start Infrastructure
+
+**IMPORTANT**: Start Docker containers before running the backend for the first time.
 
 ```bash
 docker compose up -d
 ```
 
 This starts:
-- PostgreSQL on port 5432
-- SeaweedFS Master on port 9333
-- SeaweedFS Volume on port 8080
-- SeaweedFS Filer (S3) on port 8333
+- PostgreSQL on port 15432 (mapped from container's 5432)
+- SeaweedFS Master on port 19333 (mapped from container's 9333)
+- SeaweedFS Volume on port 18080 (mapped from container's 8080)
+- SeaweedFS Filer (S3) on port 18333 (mapped from container's 8333)
+
+Verify containers are healthy:
+```bash
+docker ps | grep photobook
+```
 
 ### Start Backend
 
 ```bash
 cd backend
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
 Backend runs on http://localhost:8081
+
+**First-time startup**:
+- Flyway will automatically run database migrations on first startup
+- Admin user will be seeded: `admin@photobook.local` / `admin`
+- All database tables will be created automatically
+- Startup takes ~3-5 seconds
+
+**Verify backend is running**:
+```bash
+curl http://localhost:8081/actuator/health
+# Returns 403 (expected - requires authentication)
+```
 
 ### Start Frontend
 
@@ -423,7 +503,7 @@ After modifying `openapi.yaml`:
 
 ```bash
 # Backend (runs automatically with mvn compile)
-cd backend && ./mvnw compile
+cd backend && mvn compile
 
 # Frontend
 cd frontend && bun run generate-api  # or npm run generate-api
@@ -440,6 +520,61 @@ bunx shadcn-vue@latest add card
 bunx shadcn-vue@latest add dialog
 # etc.
 ```
+
+## Troubleshooting
+
+### Backend won't start
+
+**Port 8081 already in use**:
+```bash
+# Find and kill the process
+lsof -ti:8081 | xargs kill -9
+```
+
+**Flyway migration errors**:
+```bash
+# Reset database (WARNING: deletes all data)
+docker exec photobook-postgres psql -U photobook -d photobook -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+```
+
+**Java version issues**:
+```bash
+# Check Java version
+java -version  # Must be Java 25
+
+# If using jenv
+jenv versions
+jenv local 25
+
+# If using mise
+mise which java
+```
+
+### Database connection issues
+
+**Check Docker containers are running**:
+```bash
+docker ps | grep photobook
+# Should show 4 containers (postgres, seaweedfs-master, seaweedfs-volume, seaweedfs-filer)
+
+# Check container logs
+docker logs photobook-postgres
+```
+
+**Test database connection**:
+```bash
+docker exec photobook-postgres psql -U photobook -d photobook -c "SELECT 1;"
+```
+
+### Compilation errors
+
+**Lombok not working**:
+- Ensure Maven compiler plugin is configured in `pom.xml`
+- Clean and rebuild: `mvn clean compile`
+
+**OpenAPI generator issues**:
+- Check `openapi.yaml` syntax
+- Regenerate: `mvn clean compile`
 
 ## Git Workflow
 
