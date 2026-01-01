@@ -8,12 +8,15 @@ import cc.remer.photobook.adapter.web.model.LogoutRequest;
 import cc.remer.photobook.adapter.web.model.RefreshTokenRequest;
 import cc.remer.photobook.config.JwtProperties;
 import cc.remer.photobook.usecase.AuthenticationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@Validated
 @RestController
 @RequiredArgsConstructor
 public class AuthenticationController implements AuthenticationApi {
@@ -23,7 +26,7 @@ public class AuthenticationController implements AuthenticationApi {
     private final JwtProperties jwtProperties;
 
     @Override
-    public ResponseEntity<AuthResponse> login(LoginRequest loginRequest) {
+    public ResponseEntity<AuthResponse> login(@Valid LoginRequest loginRequest) {
         log.debug("Login request for email: {}", loginRequest.getEmail());
 
         AuthenticationService.AuthResult result = authenticationService.login(
@@ -41,7 +44,7 @@ public class AuthenticationController implements AuthenticationApi {
     }
 
     @Override
-    public ResponseEntity<AuthResponse> refreshToken(RefreshTokenRequest refreshTokenRequest) {
+    public ResponseEntity<AuthResponse> refreshToken(@Valid RefreshTokenRequest refreshTokenRequest) {
         log.debug("Refresh token request");
 
         AuthenticationService.AuthResult result = authenticationService.refresh(
@@ -58,7 +61,7 @@ public class AuthenticationController implements AuthenticationApi {
     }
 
     @Override
-    public ResponseEntity<Void> logout(LogoutRequest logoutRequest) {
+    public ResponseEntity<Void> logout(@Valid LogoutRequest logoutRequest) {
         log.debug("Logout request");
 
         authenticationService.logout(logoutRequest.getRefreshToken());

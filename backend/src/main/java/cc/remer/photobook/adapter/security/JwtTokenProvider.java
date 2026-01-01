@@ -55,6 +55,7 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .subject(userId.toString())
+                .id(UUID.randomUUID().toString()) // Add unique JWT ID to prevent duplicates
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key)

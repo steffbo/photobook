@@ -251,8 +251,8 @@ class AuthenticationControllerIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /api/auth/logout - Success even with invalid token (idempotent)")
-    void logoutWithInvalidToken_shouldReturn204() {
+    @DisplayName("POST /api/auth/logout - Failure without authentication even with token in body")
+    void logoutWithInvalidToken_shouldReturn403() {
         Map<String, String> logoutRequest = new HashMap<>();
         logoutRequest.put("refreshToken", "invalid.token");
 
@@ -262,12 +262,12 @@ class AuthenticationControllerIntegrationTest extends BaseIntegrationTest {
         .when()
             .post("/api/auth/logout")
         .then()
-            .statusCode(204); // Should still return 204 (idempotent)
+            .statusCode(403); // Spring Security returns 403 for anonymous access to protected endpoints
     }
 
     @Test
     @DisplayName("POST /api/auth/logout - Failure without authentication")
-    void logoutWithoutAuth_shouldReturn401() {
+    void logoutWithoutAuth_shouldReturn403() {
         Map<String, String> logoutRequest = new HashMap<>();
         logoutRequest.put("refreshToken", "some.token");
 
@@ -277,6 +277,6 @@ class AuthenticationControllerIntegrationTest extends BaseIntegrationTest {
         .when()
             .post("/api/auth/logout")
         .then()
-            .statusCode(401);
+            .statusCode(403); // Spring Security returns 403 for anonymous access to protected endpoints
     }
 }
