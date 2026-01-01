@@ -134,7 +134,7 @@ INSERT INTO users (id, email, password_hash, first_name, last_name, role, create
 VALUES (
     uuid_generate_v4(),
     'admin@photobook.local',
-    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+    '$2a$10$WwQXIW.fXklZoVWAFmmHMeZxzHHGYPV8MNSltH9Fie49rr1H9rsna',
     'Admin',
     'User',
     'ADMIN',

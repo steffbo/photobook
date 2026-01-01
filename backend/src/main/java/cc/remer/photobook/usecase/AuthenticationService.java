@@ -26,6 +26,7 @@ public class AuthenticationService {
     private final JwtTokenProvider tokenProvider;
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final cc.remer.photobook.config.JwtProperties jwtProperties;
 
     @Transactional
     public AuthResult login(String email, String password) {
@@ -43,10 +44,12 @@ public class AuthenticationService {
                     .orElseThrow(() -> new IllegalStateException("User not found after authentication"));
 
             String refreshTokenValue = tokenProvider.generateRefreshToken(userId);
+            Instant expiresAt = Instant.now().plusMillis(jwtProperties.getRefreshExpiration());
 
             RefreshToken refreshToken = RefreshToken.builder()
                     .token(refreshTokenValue)
                     .userId(userId)
+                    .expiresAt(expiresAt)
                     .revoked(false)
                     .build();
 
@@ -95,6 +98,7 @@ public class AuthenticationService {
 
         String newAccessToken = tokenProvider.generateAccessToken(userId, user.getEmail());
         String newRefreshToken = tokenProvider.generateRefreshToken(userId);
+        Instant newExpiresAt = Instant.now().plusMillis(jwtProperties.getRefreshExpiration());
 
         refreshToken.setRevoked(true);
         refreshTokenRepository.save(refreshToken);
@@ -102,6 +106,7 @@ public class AuthenticationService {
         RefreshToken newRefreshTokenEntity = RefreshToken.builder()
                 .token(newRefreshToken)
                 .userId(userId)
+                .expiresAt(newExpiresAt)
                 .revoked(false)
                 .build();
 

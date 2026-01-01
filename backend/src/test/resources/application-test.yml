@@ -1,12 +1,14 @@
 spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: none
     show-sql: false
   flyway:
-    enabled: true
-    baseline-on-migrate: true
-    locations: classpath:db/migration
+    enabled: false
 
 jwt:
   secret: test-secret-key-that-is-at-least-256-bits-long-for-testing-purposes-only
@@ -21,6 +23,10 @@ seaweedfs:
   buckets:
     originals: test-originals
     thumbnails: test-thumbnails
+
+storage:
+  initialization:
+    enabled: false
 
 logging:
   level:
