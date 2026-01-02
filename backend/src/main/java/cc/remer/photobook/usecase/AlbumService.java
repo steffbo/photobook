@@ -175,7 +175,7 @@ public class AlbumService {
         return albumUserRepository.existsByAlbumIdAndUserId(album.getId(), userId);
     }
 
-    private boolean isOwner(Album album, UUID userId) {
+    public boolean isOwner(Album album, UUID userId) {
         return album.getOwnerId().equals(userId);
     }
 

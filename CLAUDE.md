@@ -9,7 +9,7 @@ A full-stack photo book application with multi-user album management, drag-and-d
 - **UI Components**: shadcn-vue (Vega style, neutral base, cyan theme)
 - **Icons**: Lucide Icons
 - **Database**: PostgreSQL 17 with Flyway migrations
-- **Object Storage**: SeaweedFS (S3-compatible)
+- **Object Storage**: MinIO (S3-compatible)
 - **Authentication**: JWT (access + refresh tokens)
 - **API**: OpenAPI 3.0 spec-first approach with code generation
 
@@ -18,7 +18,7 @@ A full-stack photo book application with multi-user album management, drag-and-d
 ```
 photobook/
 ├── openapi.yaml                    # API specification (source of truth)
-├── docker-compose.yml              # PostgreSQL + SeaweedFS for local dev
+├── docker-compose.yml              # PostgreSQL + MinIO for local dev
 ├── .env.example                    # Environment variables template
 ├── backend/
 │   ├── pom.xml                     # Maven config with OpenAPI generator
@@ -28,7 +28,7 @@ photobook/
 │   │   │   ├── security/           # JWT auth (copied from timetrack)
 │   │   │   ├── web/                # Controllers implementing generated API
 │   │   │   ├── persistence/        # JPA repositories
-│   │   │   └── storage/            # SeaweedFS S3 client
+│   │   │   └── storage/            # MinIO S3 client
 │   │   ├── config/
 │   │   ├── domain/                 # Entities
 │   │   ├── usecase/                # Business logic
@@ -57,7 +57,7 @@ photobook/
 ### Tables
 
 1. **users** - User accounts with roles (ADMIN, USER)
-2. **photos** - Photo metadata (SeaweedFS keys, original filename, EXIF data, sizes)
+2. **photos** - Photo metadata (MinIO keys, original filename, EXIF data, sizes)
 3. **photo_thumbnails** - Generated thumbnails at different resolutions
 4. **albums** - Photo albums with name, description, cover photo
 5. **album_photos** - Many-to-many: photos can belong to multiple albums
@@ -69,7 +69,7 @@ photobook/
 - **small**: 150px (for grid thumbnails)
 - **medium**: 400px (for album view)
 - **large**: 800px (for lightbox preview)
-- **original**: stored as-is in SeaweedFS
+- **original**: stored as-is in MinIO
 
 ## TODO List
 
@@ -77,7 +77,7 @@ photobook/
 
 ### Phase 1: Project Setup & Infrastructure
 
-- [x] **1.1** Create `docker-compose.yml` with PostgreSQL 17 and SeaweedFS containers
+- [x] **1.1** Create `docker-compose.yml` with PostgreSQL 17 and MinIO containers
 - [x] **1.2** Create `.env.example` with all required environment variables
 - [x] **1.3** Create `openapi.yaml` with complete API specification:
   - Authentication endpoints (login, refresh, logout)
@@ -127,8 +127,8 @@ photobook/
 
 ### Phase 3: Storage & Processing
 
-- [x] **3.1** Create SeaweedFS S3 adapter:
-  - Configure S3 client for SeaweedFS
+- [x] **3.1** Create MinIO S3 adapter:
+  - Configure S3 client for MinIO
   - Upload, download, delete operations
   - Presigned URL generation
 - [x] **3.2** Create thumbnail generation service:
@@ -151,7 +151,7 @@ photobook/
   - CRUD operations with access control
   - List albums for current user
   - Manage album access (add/remove users)
-- [ ] **4.4** Implement `PhotoController`:
+- [x] **4.4** Implement `PhotoController`:
   - Upload photos (single, multiple, ZIP)
   - List photos in album
   - Delete photos
@@ -456,9 +456,9 @@ docker compose up -d
 
 This starts:
 - PostgreSQL on port 15432 (mapped from container's 5432)
-- SeaweedFS Master on port 19333 (mapped from container's 9333)
-- SeaweedFS Volume on port 18080 (mapped from container's 8080)
-- SeaweedFS Filer (S3) on port 18333 (mapped from container's 8333)
+- MinIO Master on port 19000 (mapped from container's 9333)
+- MinIO Volume on port 19001 (mapped from container's 8080)
+- MinIO Filer (S3) on port 19000 (mapped from container's 8333)
 
 Verify containers are healthy:
 ```bash
@@ -554,7 +554,7 @@ mise which java
 **Check Docker containers are running**:
 ```bash
 docker ps | grep photobook
-# Should show 4 containers (postgres, seaweedfs-master, seaweedfs-volume, seaweedfs-filer)
+# Should show 4 containers (postgres, minio-master, minio-volume, minio-filer)
 
 # Check container logs
 docker logs photobook-postgres
@@ -674,7 +674,7 @@ git push origin feat/album-management
 See `.env.example` for all configuration options:
 
 - `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` - PostgreSQL connection
-- `SEAWEEDFS_S3_ENDPOINT` - SeaweedFS S3 API endpoint
+- `SEAWEEDFS_S3_ENDPOINT` - MinIO S3 API endpoint
 - `SEAWEEDFS_ACCESS_KEY`, `SEAWEEDFS_SECRET_KEY` - S3 credentials
 - `JWT_SECRET`, `JWT_EXPIRATION`, `JWT_REFRESH_EXPIRATION` - JWT config
 - `SERVER_PORT` - Backend port (default: 8081)
@@ -690,8 +690,8 @@ See `.env.example` for all configuration options:
 
 ### Photo Storage
 
-- Original photos stored in SeaweedFS bucket: `photobook-originals`
-- Thumbnails stored in SeaweedFS bucket: `photobook-thumbnails`
+- Original photos stored in MinIO bucket: `photobook-originals`
+- Thumbnails stored in MinIO bucket: `photobook-thumbnails`
 - Photo paths: `{userId}/{albumId}/{photoId}.{ext}`
 - Thumbnail paths: `{userId}/{albumId}/{photoId}_{size}.jpg`
 
@@ -699,7 +699,7 @@ See `.env.example` for all configuration options:
 
 1. Frontend sends multipart POST to `/api/photos/upload`
 2. Backend extracts ZIP if needed, validates image files
-3. Original stored in SeaweedFS immediately
+3. Original stored in MinIO immediately
 4. Photo record created in DB with status `PROCESSING`
 5. Async job generates thumbnails
 6. Status updated to `READY` when complete

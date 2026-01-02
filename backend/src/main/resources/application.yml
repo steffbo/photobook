@@ -41,9 +41,9 @@ jwt:
 
 seaweedfs:
   s3:
-    endpoint: ${SEAWEEDFS_S3_ENDPOINT:http://localhost:18333}
-    access-key: ${SEAWEEDFS_ACCESS_KEY:any}
-    secret-key: ${SEAWEEDFS_SECRET_KEY:any}
+    endpoint: ${SEAWEEDFS_S3_ENDPOINT:http://localhost:19000}
+    access-key: ${SEAWEEDFS_ACCESS_KEY:minioadmin}
+    secret-key: ${SEAWEEDFS_SECRET_KEY:minioadmin}
   buckets:
     originals: ${SEAWEEDFS_BUCKET_ORIGINALS:photobook-originals}
     thumbnails: ${SEAWEEDFS_BUCKET_THUMBNAILS:photobook-thumbnails}

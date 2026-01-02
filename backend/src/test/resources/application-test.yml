@@ -17,9 +17,9 @@ jwt:
 
 seaweedfs:
   s3:
-    endpoint: http://localhost:9999
-    access-key: test
-    secret-key: test
+    endpoint: ${SEAWEEDFS_S3_ENDPOINT}
+    access-key: ${SEAWEEDFS_ACCESS_KEY}
+    secret-key: ${SEAWEEDFS_SECRET_KEY}
   buckets:
     originals: test-originals
     thumbnails: test-thumbnails

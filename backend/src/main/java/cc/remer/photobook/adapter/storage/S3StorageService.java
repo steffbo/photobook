@@ -55,6 +55,17 @@ public class S3StorageService {
         return getPresignedUrl(properties.getBuckets().getThumbnails(), key, expiration);
     }
 
+    public String generatePresignedUrl(String key, int expirationSeconds) {
+        // Determine if this is a thumbnail or original based on the key pattern
+        // Thumbnails have format: userId/photoId_size.jpg
+        // Originals have format: userId/photoId.ext
+        String bucket = key.contains("_") ?
+                properties.getBuckets().getThumbnails() :
+                properties.getBuckets().getOriginals();
+
+        return getPresignedUrl(bucket, key, Duration.ofSeconds(expirationSeconds));
+    }
+
     public void ensureBucketsExist() {
         ensureBucketExists(properties.getBuckets().getOriginals());
         ensureBucketExists(properties.getBuckets().getThumbnails());

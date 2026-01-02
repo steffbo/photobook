@@ -16,48 +16,26 @@ services:
       timeout: 5s
       retries: 5
 
-  seaweedfs-master:
-    image: chrislusf/seaweedfs:latest
-    container_name: photobook-seaweedfs-master
-    command: "master -ip=seaweedfs-master -ip.bind=0.0.0.0 -port=9333"
+  minio:
+    image: minio/minio:latest
+    container_name: photobook-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
     ports:
-      - "19333:9333"
+      - "19000:9000"   # S3 API port
+      - "19001:9001"   # Console UI port
+    volumes:
+      - minio_data:/data
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O-", "http://localhost:9333/cluster/status"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  seaweedfs-volume:
-    image: chrislusf/seaweedfs:latest
-    container_name: photobook-seaweedfs-volume
-    command: 'volume -mserver="seaweedfs-master:9333" -ip=seaweedfs-volume -ip.bind=0.0.0.0 -port=8080'
-    ports:
-      - "18080:8080"
-    depends_on:
-      - seaweedfs-master
-    healthcheck:
-      test: ["CMD", "wget", "-q", "-O-", "http://localhost:8080/status"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  seaweedfs-filer:
-    image: chrislusf/seaweedfs:latest
-    container_name: photobook-seaweedfs-filer
-    command: 'filer -master="seaweedfs-master:9333" -ip=seaweedfs-filer -ip.bind=0.0.0.0 -port=8888 -s3 -s3.port=8333'
-    ports:
-      - "18888:8888"  # Filer HTTP port
-      - "18333:8333"  # S3 API port
-    depends_on:
-      - seaweedfs-master
-      - seaweedfs-volume
-    healthcheck:
-      test: ["CMD", "wget", "-q", "-O-", "http://localhost:8888/"]
+      test: ["CMD", "mc", "ready", "local"]
       interval: 10s
       timeout: 5s
       retries: 5
 
 volumes:
   postgres_data:
+    driver: local
+  minio_data:
     driver: local

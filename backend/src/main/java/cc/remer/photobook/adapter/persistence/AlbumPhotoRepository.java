@@ -1,6 +1,8 @@
 package cc.remer.photobook.adapter.persistence;
 
 import cc.remer.photobook.domain.AlbumPhoto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,4 +31,7 @@ public interface AlbumPhotoRepository extends JpaRepository<AlbumPhoto, UUID> {
 
     @Query("SELECT MAX(ap.position) FROM AlbumPhoto ap WHERE ap.albumId = :albumId")
     Optional<Integer> findMaxPositionByAlbumId(@Param("albumId") UUID albumId);
+
+    @Query("SELECT ap FROM AlbumPhoto ap LEFT JOIN FETCH ap.photo WHERE ap.albumId = :albumId")
+    Page<AlbumPhoto> findByAlbumIdWithPhoto(@Param("albumId") UUID albumId, Pageable pageable);
 }
