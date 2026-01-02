@@ -142,12 +142,12 @@ photobook/
 
 ### Phase 4: API Implementation
 
-- [ ] **4.1** Implement `AuthenticationController`:
+- [x] **4.1** Implement `AuthenticationController`:
   - Login, refresh token, logout endpoints
-- [ ] **4.2** Implement `UserController`:
+- [x] **4.2** Implement `UserController`:
   - Get current user, update profile
   - Admin: list users, create user, delete user
-- [ ] **4.3** Implement `AlbumController`:
+- [x] **4.3** Implement `AlbumController`:
   - CRUD operations with access control
   - List albums for current user
   - Manage album access (add/remove users)

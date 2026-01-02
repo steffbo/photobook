@@ -1,6 +1,7 @@
 package cc.remer.photobook.adapter.web;
 
 import cc.remer.photobook.adapter.web.model.ErrorResponse;
+import cc.remer.photobook.usecase.AlbumService;
 import cc.remer.photobook.usecase.AuthenticationService;
 import cc.remer.photobook.usecase.UserService;
 import jakarta.validation.ConstraintViolation;
@@ -78,6 +79,26 @@ public class GlobalExceptionHandler {
                 .error("DUPLICATE_EMAIL")
                 .message(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(AlbumService.ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(AlbumService.ResourceNotFoundException ex) {
+        log.warn("Resource not found: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse()
+                .status(HttpStatus.NOT_FOUND.value())
+                .error("RESOURCE_NOT_FOUND")
+                .message(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(AlbumService.ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(AlbumService.ForbiddenException ex) {
+        log.warn("Forbidden: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse()
+                .status(HttpStatus.FORBIDDEN.value())
+                .error("FORBIDDEN")
+                .message(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

@@ -13,21 +13,6 @@ import static org.hamcrest.Matchers.*;
 @DisplayName("User API Integration Tests")
 class UserControllerIntegrationTest extends BaseIntegrationTest {
 
-    private String getAdminToken() {
-        Map<String, String> loginRequest = new HashMap<>();
-        loginRequest.put("email", "admin@photobook.local");
-        loginRequest.put("password", "admin");
-
-        return given()
-            .spec(requestSpec)
-            .body(loginRequest)
-        .when()
-            .post("/api/auth/login")
-        .then()
-            .statusCode(200)
-            .extract().path("accessToken");
-    }
-
     private String createTestUser(String adminToken, String email, String password) {
         Map<String, String> createRequest = new HashMap<>();
         createRequest.put("email", email);

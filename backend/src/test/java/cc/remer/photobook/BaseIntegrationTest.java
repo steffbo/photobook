@@ -41,4 +41,19 @@ public abstract class BaseIntegrationTest {
                 .addHeader("Authorization", "Bearer " + token)
                 .build();
     }
+
+    protected String getAdminToken() {
+        java.util.Map<String, String> loginRequest = new java.util.HashMap<>();
+        loginRequest.put("email", "admin@photobook.local");
+        loginRequest.put("password", "admin");
+
+        return io.restassured.RestAssured.given()
+            .spec(requestSpec)
+            .body(loginRequest)
+        .when()
+            .post("/api/auth/login")
+        .then()
+            .statusCode(200)
+            .extract().path("accessToken");
+    }
 }

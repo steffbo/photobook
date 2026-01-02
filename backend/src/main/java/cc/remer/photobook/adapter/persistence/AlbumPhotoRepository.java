@@ -25,6 +25,8 @@ public interface AlbumPhotoRepository extends JpaRepository<AlbumPhoto, UUID> {
 
     boolean existsByAlbumIdAndPhotoId(UUID albumId, UUID photoId);
 
+    long countByAlbumId(UUID albumId);
+
     @Query("SELECT MAX(ap.position) FROM AlbumPhoto ap WHERE ap.albumId = :albumId")
     Optional<Integer> findMaxPositionByAlbumId(@Param("albumId") UUID albumId);
 }

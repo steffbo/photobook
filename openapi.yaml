@@ -989,8 +989,9 @@ components:
         description:
           type: string
         coverPhotoId:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
+          nullable: true
 
     AlbumListResponse:
       type: object
