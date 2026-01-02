@@ -177,7 +177,7 @@ class PhotoControllerIntegrationTest extends BaseIntegrationTest {
             .body("content.size()", greaterThan(0))
             .body("content[0].id", notNullValue())
             .body("content[0].albumId", equalTo(albumId))
-            .body("totalElements", greaterThan(0L))
+            .body("totalElements", greaterThan(0))
             .body("totalPages", greaterThan(0))
             .body("number", equalTo(0))
             .body("size", equalTo(50));

@@ -124,12 +124,27 @@ public class PhotoUploadService {
 
     private UUID storePhoto(UUID userId, String originalFilename, byte[] fileBytes, String contentType) {
         try {
-            UUID photoId = UUID.randomUUID();
             String fileExtension = getFileExtension(originalFilename);
+
+            // First, save photo to DB to get Hibernate-generated UUID
+            // Use temporary placeholder for storage_key (required by NOT NULL constraint)
+            Photo photo = Photo.builder()
+                    .ownerId(userId)
+                    .storageKey("temp/" + UUID.randomUUID()) // Temporary placeholder
+                    .originalFilename(originalFilename)
+                    .mimeType(contentType)
+                    .fileSize((long) fileBytes.length)
+                    .status("PROCESSING")
+                    .build();
+
+            Photo savedPhoto = photoRepository.save(photo);
+            UUID photoId = savedPhoto.getId();
+
+            // Now build storage key with the actual photo ID
             String storageKey = buildStorageKey(userId, photoId, fileExtension);
+            log.debug("Uploading photo to storage: {}, size: {} bytes", storageKey, fileBytes.length);
 
-            log.debug("Storing photo: {}, size: {} bytes", storageKey, fileBytes.length);
-
+            // Upload to S3 with correct key
             storageService.uploadOriginal(
                     storageKey,
                     new ByteArrayInputStream(fileBytes),
@@ -137,25 +152,19 @@ public class PhotoUploadService {
                     contentType
             );
 
-            Photo photo = Photo.builder()
-                    .id(photoId)
-                    .ownerId(userId)
-                    .storageKey(storageKey)
-                    .originalFilename(originalFilename)
-                    .mimeType(contentType)
-                    .fileSize((long) fileBytes.length)
-                    .status("PROCESSING")
-                    .build();
-
-            photoRepository.save(photo);
-
-            thumbnailService.generateThumbnailsAsync(photoId);
+            // Update photo record with final storage key
+            savedPhoto.setStorageKey(storageKey);
+            photoRepository.save(savedPhoto);
 
             log.debug("Successfully stored photo: {}", photoId);
+
+            // Generate thumbnails asynchronously
+            thumbnailService.generateThumbnailsAsync(photoId);
+
             return photoId;
         } catch (Exception e) {
             log.error("Failed to store photo: {}", originalFilename, e);
-            return null;
+            throw new RuntimeException("Failed to upload photo: " + originalFilename, e);
         }
     }
 

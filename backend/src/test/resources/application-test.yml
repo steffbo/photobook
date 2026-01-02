@@ -30,6 +30,6 @@ storage:
 
 logging:
   level:
-    cc.remer.photobook: INFO
+    cc.remer.photobook: DEBUG
     org.springframework: WARN
     org.testcontainers: INFO
