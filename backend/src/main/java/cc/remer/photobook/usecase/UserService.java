@@ -96,6 +96,25 @@ public class UserService {
         log.info("User deleted: {}", user.getEmail());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public void deleteUserByMostSigBits(Long mostSigBits) {
+        log.debug("Deleting user by most significant bits: {}", mostSigBits);
+
+        User user = userRepository.findByMostSignificantBits(mostSigBits)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        userRepository.delete(user);
+        log.info("User deleted: {}", user.getEmail());
+    }
+
+    public UUID findByMostSignificantBits(Long mostSigBits) {
+        log.debug("Finding user by most significant bits: {}", mostSigBits);
+        User user = userRepository.findByMostSignificantBits(mostSigBits)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        return user.getId();
+    }
+
     public static class UserNotFoundException extends RuntimeException {
         public UserNotFoundException(String message) {
             super(message);

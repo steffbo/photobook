@@ -28,6 +28,8 @@ public abstract class BaseIntegrationTest {
     void setUpBase() {
         RestAssured.port = port;
         requestSpec = new RequestSpecBuilder()
+                .setBaseUri("http://localhost")
+                .setPort(port)
                 .setContentType(ContentType.JSON)
                 .setAccept(ContentType.JSON)
                 .build();

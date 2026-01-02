@@ -94,7 +94,7 @@ public class UserController implements UsersApi {
     public ResponseEntity<Void> deleteUser(Long userId) {
         log.debug("Delete user request: {}", userId);
 
-        userService.deleteUser(convertLongToUUID(userId));
+        userService.deleteUserByMostSigBits(userId);
 
         return ResponseEntity.noContent().build();
     }
@@ -102,9 +102,5 @@ public class UserController implements UsersApi {
     private UserPrincipal getCurrentUserPrincipal() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (UserPrincipal) authentication.getPrincipal();
-    }
-
-    private java.util.UUID convertLongToUUID(Long id) {
-        return new java.util.UUID(id, 0L);
     }
 }

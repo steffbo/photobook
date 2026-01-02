@@ -28,7 +28,7 @@
         <thumbnailator.version>0.4.20</thumbnailator.version>
         <metadata-extractor.version>2.19.0</metadata-extractor.version>
         <testcontainers.version>1.20.4</testcontainers.version>
-        <rest-assured.version>5.5.0</rest-assured.version>
+        <rest-assured.version>6.0.0</rest-assured.version>
     </properties>
 
     <dependencies>
