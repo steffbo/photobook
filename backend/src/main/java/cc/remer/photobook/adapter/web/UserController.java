@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -91,10 +92,10 @@ public class UserController implements UsersApi {
     }
 
     @Override
-    public ResponseEntity<Void> deleteUser(Long userId) {
+    public ResponseEntity<Void> deleteUser(UUID userId) {
         log.debug("Delete user request: {}", userId);
 
-        userService.deleteUserByMostSigBits(userId);
+        userService.deleteUser(userId);
 
         return ResponseEntity.noContent().build();
     }

@@ -227,8 +227,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       responses:
         '204':
           description: User deleted
@@ -319,8 +319,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       responses:
         '200':
           description: Album retrieved
@@ -351,8 +351,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -395,8 +395,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       responses:
         '204':
           description: Album deleted
@@ -424,8 +424,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       responses:
         '200':
           description: Album users retrieved
@@ -458,8 +458,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -503,14 +503,14 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
         - name: userId
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       responses:
         '204':
           description: User access removed
@@ -539,8 +539,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
         - name: page
           in: query
           schema:
@@ -581,8 +581,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -634,8 +634,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       responses:
         '200':
           description: Photo retrieved
@@ -666,8 +666,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       responses:
         '204':
           description: Photo deleted
@@ -695,8 +695,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
         - name: size
           in: query
           schema:
@@ -734,8 +734,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -779,8 +779,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -869,8 +869,8 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
         email:
           type: string
           format: email
@@ -944,20 +944,21 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
         name:
           type: string
         description:
           type: string
         coverPhotoId:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
+          nullable: true
         photoCount:
           type: integer
         ownerId:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
         ownerName:
           type: string
         role:
@@ -1012,8 +1013,8 @@ components:
       type: object
       properties:
         userId:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
         email:
           type: string
         firstName:
@@ -1033,8 +1034,8 @@ components:
         - userId
       properties:
         userId:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
         role:
           type: string
           enum: [VIEWER]
@@ -1045,11 +1046,11 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
         albumId:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
         originalFilename:
           type: string
         mimeType:
@@ -1106,8 +1107,8 @@ components:
         - targetAlbumId
       properties:
         targetAlbumId:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
 
     CopyPhotoRequest:
       type: object
@@ -1115,8 +1116,8 @@ components:
         - targetAlbumId
       properties:
         targetAlbumId:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
 
     # Common Schemas
     ErrorResponse:

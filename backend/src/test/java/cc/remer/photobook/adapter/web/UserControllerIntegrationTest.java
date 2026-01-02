@@ -500,7 +500,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
         createRequest.put("lastName", "Delete");
         createRequest.put("role", "USER");
 
-        Long userId = given()
+        String userId = given()
             .spec(withAuth(adminToken))
             .body(createRequest)
         .when()
@@ -539,7 +539,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
         given()
             .spec(withAuth(token))
         .when()
-            .delete("/api/users/999999")
+            .delete("/api/users/00000000-0000-0000-0000-000000000000")
         .then()
             .statusCode(404)
             .body("error", equalTo("USER_NOT_FOUND"));
@@ -549,6 +549,23 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
     @DisplayName("DELETE /api/users/{userId} - Failure with non-admin token")
     void deleteUser_withNonAdminToken_shouldReturn403() {
         String adminToken = getAdminToken();
+
+        // Create a target user to attempt to delete
+        Map<String, String> targetUserRequest = new HashMap<>();
+        targetUserRequest.put("email", "target@photobook.local");
+        targetUserRequest.put("password", "password");
+        targetUserRequest.put("firstName", "Target");
+        targetUserRequest.put("lastName", "User");
+        targetUserRequest.put("role", "USER");
+
+        String targetUserId = given()
+            .spec(withAuth(adminToken))
+            .body(targetUserRequest)
+        .when()
+            .post("/api/users")
+        .then()
+            .statusCode(201)
+            .extract().path("id");
 
         // Create regular user
         Map<String, String> createRequest = new HashMap<>();
@@ -580,11 +597,11 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
             .statusCode(200)
             .extract().path("accessToken");
 
-        // Try to delete admin as regular user
+        // Try to delete target user as regular user (should fail)
         given()
             .spec(withAuth(userToken))
         .when()
-            .delete("/api/users/1")
+            .delete("/api/users/" + targetUserId)
         .then()
             .statusCode(403)
             .body("error", equalTo("ACCESS_DENIED"));
@@ -596,7 +613,7 @@ class UserControllerIntegrationTest extends BaseIntegrationTest {
         given()
             .spec(requestSpec)
         .when()
-            .delete("/api/users/1")
+            .delete("/api/users/00000000-0000-0000-0000-000000000001")
         .then()
             .statusCode(403); // Spring Security returns 403 for anonymous access to protected endpoints
     }
